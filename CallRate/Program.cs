@@ -14,7 +14,7 @@ namespace CallRate {
             while (true) {
                 Console.Write("Start Date ( eg. 03/01/2009 05:42:00 ): ");
                 var startDateString = Console.ReadLine();
-                Console.Write("End Date ( eg. 03/01/2009 05:42:00 ): ");
+                Console.Write("End Date   ( eg. 03/01/2009 05:42:00 ): ");
                 var endDateString = Console.ReadLine();
                 var model = new CostCalculateModel();
                 model.Start = DateTime.Parse(startDateString);
