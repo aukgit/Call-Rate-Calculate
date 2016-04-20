@@ -44,7 +44,6 @@
     <Compile Include="Consts.cs" />
     <Compile Include="CostCalculateLogic.cs" />
     <Compile Include="CostCalculateModel.cs" />
-    <Compile Include="Extensions\DateTimeExtension.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
