@@ -8,8 +8,8 @@ namespace CallRate {
             Console.WriteLine("--- 06 AM to 12 PM : Cost 3 ---");
             Console.WriteLine("--- 12 PM to 06 PM : Cost 4 ---");
             Console.WriteLine("--- 06 PM to 12 AM : Cost 2 ---");
-            Console.WriteLine("--- 03/01/2009 05:42:00 means 01-Jan-2009 05:00 AM ---");
-            Console.WriteLine("--- 03/02/2009 22:42:00 means 01-Feb-2009 10:00 PM ---");
+            Console.WriteLine("--- 03/01/2009 05:42:00 means 01-Jan-2009 05:42 AM ---");
+            Console.WriteLine("--- 03/02/2009 22:42:00 means 01-Feb-2009 10:42 PM ---");
             Console.WriteLine("--- ------------ ---");
             while (true) {
                 Console.Write("Start Date ( eg. 03/01/2009 05:42:00 ): ");
