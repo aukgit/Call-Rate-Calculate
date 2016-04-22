@@ -20,7 +20,7 @@ namespace CallRate {
                 model.Start = DateTime.Parse(startDateString);
                 model.End = DateTime.Parse(endDateString);
                 var costLogic = new CostCalculateLogic(model);
-                var sum = costLogic.CalculateRates();
+                var sum = costLogic.GetTotalCost();
                 Console.WriteLine("Total Cost : " + sum);
                 costLogic = null;
                 model = null;
