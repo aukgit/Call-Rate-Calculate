@@ -17,23 +17,23 @@ namespace CallRate {
         /// <returns></returns>
         public double GetTotalCost() {
 
-            var timeDiff = CostCalculateModel.End - CostCalculateModel.Start;
-            var daysAsInt = (int)timeDiff.TotalDays;
             var startTime = CostCalculateModel.Start;
             var endTime = CostCalculateModel.End;
             if (startTime > endTime) {
                 SwapDateTime(ref startTime, ref endTime);
             }
             var lastCalculatedSolt = new TimeSpan(0, 0, 0); // starting from 0 quad
-            double totalCost = CalculateCost(startTime.TimeOfDay, lastCalculatedSolt, ref lastCalculatedSolt);
-            startTime = new DateTime(startTime.Year, startTime.Month, startTime.Day); // Pointing the time to the starting of the day
+            var timeDiff = endTime - startTime;
 
-            totalCost += CalculateCost(endTime.TimeOfDay, lastCalculatedSolt, ref lastCalculatedSolt);
-            endTime = new DateTime(endTime.Year, endTime.Month, endTime.Day); // Pointing the time to the starting of the day
+            int totalDaysAsInt = (int)timeDiff.TotalDays;
+            double fractionTime = timeDiff.TotalDays - totalDaysAsInt;
 
-            int totalDays = (int)(endTime - startTime).TotalDays;
-
-            double totalCostForDays = totalDays * Consts.OneDayCost;
+            double totalCost = 0;
+            if (fractionTime > 0) {
+                totalCost = CalculateCost(startTime.TimeOfDay, lastCalculatedSolt, ref lastCalculatedSolt);
+                totalCost += CalculateCost(endTime.TimeOfDay, lastCalculatedSolt, ref lastCalculatedSolt);
+            }
+            double totalCostForDays = totalDaysAsInt * Consts.OneDayCost;
 
             totalCost += totalCostForDays;
             return totalCost;
