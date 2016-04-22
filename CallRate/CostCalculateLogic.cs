@@ -2,6 +2,8 @@
 
 namespace CallRate {
     internal class CostCalculateLogic {
+
+        private bool _isInFirstClockCycle = true;
         public CostCalculateLogic(CostCalculateModel model) {
             CostCalculateModel = model;
         }
@@ -10,10 +12,6 @@ namespace CallRate {
 
         private void SetInitialStartEndCalculateTime() {
             CostCalculateModel.CalculatingStart = CostCalculateModel.Start.TimeOfDay;
-            if (!CostCalculateModel.Start.Date.Equals(CostCalculateModel.End.Date)) {
-                var end = CostCalculateModel.End;
-                CostCalculateModel.Start = new DateTime(end.Year, end.Month, end.Day, end.Hour, end.Minute, end.Second);
-            }
             CostCalculateModel.CalculatingEnd = CostCalculateModel.End.TimeOfDay;
         }
 
@@ -22,37 +20,32 @@ namespace CallRate {
         ///     Please create new
         /// </summary>
         /// <returns></returns>
-        public long CalculateRates() {
+        public double CalculateRates() {
             if (CostCalculateModel.IsComplete) {
                 throw new Exception("Calculate method is already executed. Please initialize with new model.");
             }
             var timeDiff = CostCalculateModel.End - CostCalculateModel.Start;
-            var daysAsInt = (int) timeDiff.TotalDays;
-            CostCalculateModel.Start = CostCalculateModel.Start.AddDays(daysAsInt);
-            if (CostCalculateModel.Start.TimeOfDay > CostCalculateModel.End.TimeOfDay) {
-                var temp = CostCalculateModel.Start;
-                CostCalculateModel.Start = CostCalculateModel.End;
-                CostCalculateModel.End = temp;
-            }
+            var daysAsInt = (int)timeDiff.TotalDays;
             SetInitialStartEndCalculateTime();
-
-            //decimal months = days / (decimal)30;
-            //decimal years = months / (decimal)12;
-            long costSummation = 0;
+            double costSummation = 0;
             if (daysAsInt > 0) {
                 costSummation = daysAsInt * Consts.OneDayCost;
             }
-            var slot1 = Calculate12AmTo6AmCost();
-            var solt2 = Calculate6AmTo12PmCost();
-            var solt3 = Calculate12PmTo6PmCost();
-            var solt4 = Calculate6PmTo12AmCost();
-            costSummation += slot1 + solt2 + solt3 + solt4;
+            double specificTimeSlotCosts = 0;
+            while (!CostCalculateModel.IsComplete) {
+                var slot1 = Calculate12AmTo6AmCost();
+                var solt2 = Calculate6AmTo12PmCost();
+                var solt3 = Calculate12PmTo6PmCost();
+                var solt4 = Calculate6PmTo12AmCost();
+                specificTimeSlotCosts += slot1 + solt2 + solt3 + solt4;
+            }
+            costSummation += specificTimeSlotCosts;
 
             return costSummation;
         }
 
-        private long Calculate12AmTo6AmCost() {
-            long sum = 0;
+        private double Calculate12AmTo6AmCost() {
+            double sum = 0;
             if (!CostCalculateModel.IsComplete) {
                 var nextSolt = Consts.Time6Am;
                 var cost = Consts.Am12To6AmRate;
@@ -60,15 +53,15 @@ namespace CallRate {
                 if (IsTimeBetween12AmTo6Am(CostCalculateModel.CalculatingStart)) {
                     SetEndTimeWithClosetBoundary(nextSolt);
                     var timeDiff = CostCalculateModel.CalculatingEnd - CostCalculateModel.CalculatingStart;
-                    sum = (long) timeDiff.TotalMinutes * cost;
+                    sum = timeDiff.TotalMinutes * cost;
                     CheckStartEndDateAndSetDateTimeForNextCalculation(nextSolt);
                 }
             }
             return sum;
         }
 
-        private long Calculate6AmTo12PmCost() {
-            long sum = 0;
+        private double Calculate6AmTo12PmCost() {
+            double sum = 0;
             if (!CostCalculateModel.IsComplete) {
                 var nextSolt = Consts.Time12Pm;
                 var cost = Consts.Am6To12PmRate;
@@ -76,15 +69,15 @@ namespace CallRate {
                 if (IsTimeBetween6AmTo12Pm(CostCalculateModel.CalculatingStart)) {
                     SetEndTimeWithClosetBoundary(nextSolt);
                     var timeDiff = CostCalculateModel.CalculatingEnd - CostCalculateModel.CalculatingStart;
-                    sum = (long) timeDiff.TotalMinutes * cost;
+                    sum = timeDiff.TotalMinutes * cost;
                     CheckStartEndDateAndSetDateTimeForNextCalculation(nextSolt);
                 }
             }
             return sum;
         }
 
-        private long Calculate12PmTo6PmCost() {
-            long sum = 0;
+        private double Calculate12PmTo6PmCost() {
+            double sum = 0;
             if (!CostCalculateModel.IsComplete) {
                 var nextSolt = Consts.Time6Pm;
                 var cost = Consts.Pm12To6PmRate;
@@ -92,36 +85,36 @@ namespace CallRate {
                 if (IsTimeBetween12PmTo6Pm(CostCalculateModel.CalculatingStart)) {
                     SetEndTimeWithClosetBoundary(nextSolt);
                     var timeDiff = CostCalculateModel.CalculatingEnd - CostCalculateModel.CalculatingStart;
-                    sum = (long) timeDiff.TotalMinutes * cost;
+                    sum = timeDiff.TotalMinutes * cost;
                     CheckStartEndDateAndSetDateTimeForNextCalculation(nextSolt);
                 }
             }
             return sum;
         }
 
-        private long Calculate6PmTo12AmCost() {
-            long sum = 0;
+        private double Calculate6PmTo12AmCost() {
+            double sum = 0;
             if (!CostCalculateModel.IsComplete) {
-                var nextSolt = Consts.Time1159Pm;
+                var endSolt = Consts.Time1159Pm;
+                var nextSolt = Consts.Time12Am;
                 var cost = Consts.Pm6To12AmRate;
                 if (IsTimeBetween6PmTo12Am(CostCalculateModel.CalculatingStart)) {
-                    SetEndTimeWithClosetBoundary(nextSolt);
+                    SetEndTimeWithClosetBoundary(endSolt);
                     var timeDiff = CostCalculateModel.CalculatingEnd - CostCalculateModel.CalculatingStart;
-                    sum = (long) timeDiff.TotalMinutes * cost;
+                    sum = timeDiff.TotalMinutes * cost;
                     CheckStartEndDateAndSetDateTimeForNextCalculation(nextSolt);
                 }
             }
-            CostCalculateModel.IsComplete = true;
+            _isInFirstClockCycle = false;
             return sum;
         }
 
         private void CheckStartEndDateAndSetDateTimeForNextCalculation(TimeSpan nextBoundarySlotStartingTime) {
-            if (CostCalculateModel.End.TimeOfDay > CostCalculateModel.CalculatingEnd) {
-                CostCalculateModel.CalculatingEnd = CostCalculateModel.End.TimeOfDay;
-                CostCalculateModel.CalculatingStart = nextBoundarySlotStartingTime;
-            } else {
+            if (CostCalculateModel.CalculatingEnd.Equals(CostCalculateModel.End.TimeOfDay)) {
                 CostCalculateModel.IsComplete = true;
             }
+            CostCalculateModel.CalculatingEnd = CostCalculateModel.End.TimeOfDay;
+            CostCalculateModel.CalculatingStart = nextBoundarySlotStartingTime;
         }
 
         /// <summary>
@@ -130,9 +123,17 @@ namespace CallRate {
         ///     then end time should be changed to 11:59 AM and then calculate the price for that boundary.
         /// </summary>
         private void SetEndTimeWithClosetBoundary(TimeSpan boundaryTime) {
-            CostCalculateModel.CalculatingEnd = CostCalculateModel.CalculatingEnd <= boundaryTime
-                                                    ? CostCalculateModel.CalculatingEnd
-                                                    : boundaryTime;
+            var timeDiff = CostCalculateModel.CalculatingEnd - boundaryTime;
+            if (timeDiff.TotalSeconds < 0 && _isInFirstClockCycle) {
+                CostCalculateModel.CalculatingEnd = CostCalculateModel.CalculatingEnd <= boundaryTime
+                                           ? boundaryTime
+                                           : CostCalculateModel.CalculatingEnd;
+            } else {
+                CostCalculateModel.CalculatingEnd = CostCalculateModel.CalculatingEnd <= boundaryTime
+                                           ? CostCalculateModel.CalculatingEnd
+                                           : boundaryTime;
+            }
+
         }
 
         private bool IsTimeBetween12AmTo6Am(TimeSpan time) {

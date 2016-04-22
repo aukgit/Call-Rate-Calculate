@@ -9,12 +9,12 @@ namespace CallRate {
         public const int Pm12To6PmRate = 4;
         public const int Pm6To12AmRate = 2;
 
-        public const int Am12To6AmTotalCost = Am12To6AmRate * 6 * 60;
-        public const int Am6To12PmTotalCost = Am6To12PmRate * 6 * 60;
-        public const int Pm12To6PmTotalCost = Pm12To6PmRate * 6 * 60;
-        public const int Pm6To12AmTotalCost = Pm6To12AmRate * 6 * 60;
+        public const double Am12To6AmTotalCost = Am12To6AmRate * 6 * 60;
+        public const double Am6To12PmTotalCost = Am6To12PmRate * 6 * 60;
+        public const double Pm12To6PmTotalCost = Pm12To6PmRate * 6 * 60;
+        public const double Pm6To12AmTotalCost = Pm6To12AmRate * 6 * 60;
 
-        public const int OneDayCost = Am12To6AmTotalCost + Am6To12PmTotalCost + Pm12To6PmTotalCost + Pm6To12AmTotalCost;
+        public const double OneDayCost = Am12To6AmTotalCost + Am6To12PmTotalCost + Pm12To6PmTotalCost + Pm6To12AmTotalCost;
 
         /// <summary>
         ///     12:00 AM
