@@ -12,7 +12,6 @@ namespace CallRate {
 
         /// <summary>
         ///     Calculate can only ran at once on a model.
-        ///     Please create new
         /// </summary>
         /// <returns></returns>
         public double GetTotalCost() {
@@ -38,7 +37,13 @@ namespace CallRate {
             totalCost += totalCostForDays;
             return totalCost;
         }
-
+        /// <summary>
+        /// Calculate quad wise min cost
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="timeSlotStart">Give a starting timeslot.</param>
+        /// <param name="lastSlot"></param>
+        /// <returns></returns>
         private double CalculateCost(TimeSpan time, TimeSpan timeSlotStart, ref TimeSpan lastSlot) {
             var sixHour = new TimeSpan(6, 0, 0);
             var curTimeSpan = timeSlotStart; // starts from six hour quad
