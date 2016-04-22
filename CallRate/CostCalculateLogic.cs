@@ -25,7 +25,7 @@ namespace CallRate {
                 SwapDateTime(ref startTime, ref endTime);
             }
             var lastCalculatedSolt = new TimeSpan(0, 0, 0); // starting from 0 quad
-            double totalCost = -CalculateCost(startTime.TimeOfDay, lastCalculatedSolt, ref lastCalculatedSolt);
+            double totalCost = CalculateCost(startTime.TimeOfDay, lastCalculatedSolt, ref lastCalculatedSolt);
             startTime = new DateTime(startTime.Year, startTime.Month, startTime.Day); // Pointing the time to the starting of the day
 
             totalCost += CalculateCost(endTime.TimeOfDay, lastCalculatedSolt, ref lastCalculatedSolt);
@@ -36,7 +36,7 @@ namespace CallRate {
             double totalCostForDays = totalDays * Consts.OneDayCost;
 
             totalCost += totalCostForDays;
-            return totalDays;
+            return totalCost;
         }
 
         private double CalculateCost(TimeSpan time, TimeSpan timeSlotStart, ref TimeSpan lastSlot) {
@@ -45,7 +45,7 @@ namespace CallRate {
             int index = 0;
             double sum = 0;
             if (curTimeSpan.TotalHours > 0) {
-                index = (int) ((curTimeSpan.TotalHours / sixHour.TotalHours) );
+                index = (int)((curTimeSpan.TotalHours / sixHour.TotalHours));
             }
             do {
                 var cost = Consts.Cost[index++];
@@ -53,14 +53,10 @@ namespace CallRate {
                 if (curTimeSpan <= time) { // already time + six hour quad
                     sum += 6 * 60 * cost; // 6 for each quad
                 } else {
-                    var closetTimeSpan = curTimeSpan < time ? timeSlotStart : time;
-                    var diff = time - closetTimeSpan;
-                    if (diff.TotalMinutes > 0) {
-                        sum += diff.TotalMinutes * cost;
-                    } else if( diff.TotalMinutes == 0 ) {
+                    if (index == 1) {
                         sum += (curTimeSpan - time).TotalMinutes * cost;
                     } else {
-                        sum += ((curTimeSpan + sixHour) - time ).TotalMinutes * cost;
+                        sum += (time - (curTimeSpan - sixHour)).TotalMinutes * cost;
                     }
                 }
             } while (curTimeSpan < time);
